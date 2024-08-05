@@ -183,7 +183,7 @@ export const getPlatformManageLink = (calEvent: CalendarEvent, t: TFunction) => 
   if (!calEvent.recurringEvent && calEvent.platformRescheduleUrl) {
     res += `${calEvent.platformCancelUrl ? ` ${t("or_lowercase")} ` : ""}${t(
       "reschedule"
-    )}: ${getRescheduleLink(calEvent)}`;
+    )}: ${getRescheduleLink({ calEvent })}`;
   }
 
   return res;
@@ -249,7 +249,13 @@ export const getPlatformRescheduleLink = (
   return "";
 };
 
-export const getRescheduleLink = (calEvent: CalendarEvent): string => {
+export const getRescheduleLink = ({
+  calEvent,
+  allowRescheduleForCancelledBooking = false,
+}: {
+  calEvent: CalendarEvent;
+  allowRescheduleForCancelledBooking?: boolean;
+}): string => {
   const Uid = getUid(calEvent);
   const seatUid = getSeatReferenceId(calEvent);
 
@@ -257,7 +263,11 @@ export const getRescheduleLink = (calEvent: CalendarEvent): string => {
     return getPlatformRescheduleLink(calEvent, Uid, seatUid);
   }
 
-  return `${calEvent.bookerUrl ?? WEBAPP_URL}/reschedule/${seatUid ? seatUid : Uid}`;
+  const url = new URL(`${calEvent.bookerUrl ?? WEBAPP_URL}/reschedule/${seatUid ? seatUid : Uid}`);
+  if (allowRescheduleForCancelledBooking) {
+    url.searchParams.append("allowRescheduleForCancelledBooking", "true");
+  }
+  return url.toString();
 };
 
 export const getRichDescription = (
