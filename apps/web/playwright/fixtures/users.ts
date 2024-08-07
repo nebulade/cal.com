@@ -498,7 +498,7 @@ export const createUsersFixture = (
               await updateChildrenEventTypes({
                 eventTypeId: teamEvent.id,
                 currentUserId: user.id,
-                hashedLink: null,
+                hashedLink: "",
                 connectedLink: null,
                 oldEventType: {
                   team: null,
