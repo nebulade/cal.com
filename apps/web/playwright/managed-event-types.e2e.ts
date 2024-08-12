@@ -35,7 +35,7 @@ async function setupManagedEvent({
   return { adminUser, memberUser, managedEvent, teamMateName, teamEventTitle };
 }
 
-const getByKey = async (page: Page, key: string) => page.getByText((await localize("en"))(key));
+const getByLocaleKey = async (page: Page, key: string) => page.getByText((await localize("en"))(key));
 
 test.describe("Managed Event Types", () => {
   test("Can create managed event type", async ({ page, users }) => {
@@ -88,27 +88,19 @@ test.describe("Managed Event Types", () => {
   });
 
   test("Managed event type can use Organizer's default app as location", async ({ page, users }) => {
-    const { memberUser } = await setupManagedEvent({
+    const { adminUser, managedEvent } = await setupManagedEvent({
       users,
     });
-    await memberUser.apiLogin();
-    const managedEvent = await memberUser.getFirstEventAsOwner();
+    await adminUser.apiLogin();
     await page.goto(`/event-types/${managedEvent.id}?tabName=setup`);
-
-    await page.getByTestId("vertical-tab-event_setup_tab_title").click();
-
     await page.locator("#location-select").click();
     const optionText = (await localize("en"))("organizer_default_conferencing_app");
     await page.locator(`text=${optionText}`).click();
     await page.locator("[data-testid=update-eventtype]").click();
-    await page.getByTestId("toast-success").waitFor();
-    await page.waitForLoadState("networkidle");
-
     await page.getByTestId("vertical-tab-assignment").click();
     await gotoBookingPage(page);
     await selectFirstAvailableTimeSlotNextMonth(page);
     await bookTimeSlot(page);
-
     await expect(page.getByTestId("success-page")).toBeVisible();
   });
 
@@ -219,22 +211,22 @@ test.describe("Managed Event Types", () => {
   });
 
   const MANAGED_EVENT_TABS: { slug: string; locator: (page: Page) => Locator | Promise<Locator> }[] = [
-    { slug: "setup", locator: (page) => getByKey(page, "title") },
+    { slug: "setup", locator: (page) => getByLocaleKey(page, "title") },
     {
       slug: "team",
-      locator: (page) => getByKey(page, "automatically_add_all_team_members"),
+      locator: (page) => getByLocaleKey(page, "automatically_add_all_team_members"),
     },
     {
       slug: "availability",
-      locator: (page) => getByKey(page, "automatically_add_all_team_members"),
+      locator: (page) => getByLocaleKey(page, "members_default_schedule_description"),
     },
     {
       slug: "limits",
-      locator: (page) => getByKey(page, "before_event"),
+      locator: (page) => getByLocaleKey(page, "before_event"),
     },
     {
       slug: "advanced",
-      locator: (page) => getByKey(page, "event_name_in_calendar"),
+      locator: (page) => getByLocaleKey(page, "event_name_in_calendar"),
     },
     {
       slug: "apps",
