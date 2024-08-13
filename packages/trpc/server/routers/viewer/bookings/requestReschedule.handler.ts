@@ -202,11 +202,11 @@ export const requestRescheduleHandler = async ({ ctx, input }: RequestReschedule
   director.setBuilder(builder);
   director.setExistingBooking(bookingToReschedule);
   cancellationReason && director.setCancellationReason(cancellationReason);
+  // Request Reschedule flow first cancels the booking and then reschedule email is sent. So, we need to allow reschedule for cancelled booking
   if (Object.keys(event).length) {
-    // Request Reschedule flow first cancels the booking and then reschedule email is sent. So, we need to allow reschedule for cancelled booking
     await director.buildForRescheduleEmail({ allowRescheduleForCancelledBooking: true });
   } else {
-    await director.buildWithoutEventTypeForRescheduleEmail();
+    await director.buildWithoutEventTypeForRescheduleEmail({ allowRescheduleForCancelledBooking: true });
   }
 
   // Handling calendar and videos cancellation

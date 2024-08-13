@@ -44,7 +44,7 @@ export class CalendarEventDirector {
      * By default we don't want to allow reschedule for cancelled bookings.
      */
     allowRescheduleForCancelledBooking?: boolean;
-  }): Promise<void> {
+  } = {}): Promise<void> {
     if (this.existingBooking && this.existingBooking.eventTypeId && this.existingBooking.uid) {
       await this.builder.buildEventObjectFromInnerClass(this.existingBooking.eventTypeId);
       await this.builder.buildUsersFromInnerClass();
@@ -64,7 +64,7 @@ export class CalendarEventDirector {
     }
   }
 
-  public async buildWithoutEventTypeForRescheduleEmail() {
+  public async buildWithoutEventTypeForRescheduleEmail({ allowRescheduleForCancelledBooking = false }) {
     if (this.existingBooking && this.existingBooking.userId && this.existingBooking.uid) {
       await this.builder.setUsersFromId(this.existingBooking.userId);
       this.builder.buildAttendeesList();
@@ -72,7 +72,7 @@ export class CalendarEventDirector {
       this.builder.setUId(this.existingBooking.uid);
       this.builder.setCancellationReason(this.cancellationReason);
       this.builder.setDescription(this.existingBooking.description);
-      await this.builder.buildRescheduleLink(this.existingBooking);
+      await this.builder.buildRescheduleLink({ allowRescheduleForCancelledBooking });
     } else {
       throw new Error("buildWithoutEventTypeForRescheduleEmail.missing.params.required");
     }
