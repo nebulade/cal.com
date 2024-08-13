@@ -152,6 +152,7 @@ const createTeamAndAddUser = async (
     organizationId,
     isDnsSetup,
     index,
+    orgRequestedSlug,
   }: {
     user: { id: number; email: string; username: string | null; role?: MembershipRole };
     isUnpublished?: boolean;
@@ -161,11 +162,13 @@ const createTeamAndAddUser = async (
     hasSubteam?: true;
     organizationId?: number | null;
     index?: number;
+    orgRequestedSlug?: string;
   },
   workerInfo: WorkerInfo
 ) => {
   const slugIndex = index ? `-count-${index}` : "";
-  const slug = `${isOrg ? "org" : "team"}-${workerInfo.workerIndex}-${Date.now()}${slugIndex}`;
+  const slug =
+    orgRequestedSlug ?? `${isOrg ? "org" : "team"}-${workerInfo.workerIndex}-${Date.now()}${slugIndex}`;
   const data: PrismaType.TeamCreateInput = {
     name: `user-id-${user.id}'s ${isOrg ? "Org" : "Team"}`,
     isOrganization: isOrg,
@@ -274,6 +277,7 @@ export const createUsersFixture = (
         seatsPerTimeSlot?: number;
         addManagedEventToTeamMates?: boolean;
         managedEventUnlockedFields?: Record<string, boolean>;
+        orgRequestedSlug?: string;
       } = {}
     ) => {
       const _user = await prisma.user.create({
@@ -451,6 +455,7 @@ export const createUsersFixture = (
               isDnsSetup: scenario.isDnsSetup,
               hasSubteam: scenario.hasSubteam,
               organizationId: opts?.organizationId,
+              orgRequestedSlug: scenario.orgRequestedSlug,
             },
             workerInfo
           );
